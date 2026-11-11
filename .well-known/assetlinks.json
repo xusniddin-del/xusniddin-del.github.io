@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.xusniddin_del.twa",
+      "sha256_cert_fingerprints": [
+        "06:EC:81:84:7A:53:63:91:17:78:AE:84:B8:3C:5D:F8:EB:A6:A5:36:65:C0:80:24:45:1F:FE:26:CB:86:FD:FB"
+      ]
+    }
+  }
+]

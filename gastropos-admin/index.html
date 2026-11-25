@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<meta name="robots" content="noindex,nofollow">
+<title>GastroPOS Admin — kafelarni boshqarish</title>
+<link rel="icon" href="../gastropos/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f4f6;--ink:#0f172a;--ink2:#334155;--muted:#64748b;--faint:#94a3b8;--line:#e5e7eb;--soft:#f8fafc;
+  --brand:#f97316;--brand2:#ea580c;--brandSoft:#fff7ed;--green:#10b981;--green2:#047857;--greenSoft:#ecfdf5;
+  --amber:#f59e0b;--amber2:#b45309;--amberSoft:#fffbeb;--red:#ef4444;--red2:#b91c1c;--redSoft:#fef2f2;
+  --blue:#3b82f6;--blue2:#1d4ed8;--blueSoft:#eff6ff;--violet:#7c3aed;--violetSoft:#f5f3ff;--side:#0b1220;
+  --sh:0 1px 2px rgba(15,23,42,.04),0 6px 20px -6px rgba(15,23,42,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{overflow-x:hidden;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+.ic{flex-shrink:0;display:block}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+[hidden]{display:none!important}
+
+/* top */
+.top{position:sticky;top:0;z-index:20;background:var(--side);color:#fff;padding:12px 22px;display:flex;align-items:center;gap:14px}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#fb923c,#ea580c);display:grid;place-items:center;color:#fff;box-shadow:0 10px 24px -8px rgba(249,115,22,.7);flex-shrink:0}
+.top b{font-size:17px;font-weight:800;letter-spacing:-.02em;display:block;line-height:1.1}.top b span{color:#fb923c}
+.top small{font-size:11.5px;color:#64748b}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.tbtn{height:38px;padding:0 12px;border-radius:11px;background:rgba(255,255,255,.08);color:#e2e8f0;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px}
+.tbtn:hover{background:rgba(255,255,255,.14)}
+.upd{font-size:11.5px;color:#64748b;white-space:nowrap}
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,.06);padding:4px;border-radius:12px}
+.tabs button{height:34px;padding:0 14px;border-radius:9px;font-size:13px;font-weight:700;color:#94a3b8}
+.tabs button.on{background:#fff;color:var(--ink)}
+
+.wrap{max-width:1280px;margin:0 auto;padding:22px 22px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 16px;height:44px;border-radius:12px;font-weight:700;font-size:14px;white-space:nowrap;transition:transform .08s,background .15s}
+.btn:active{transform:scale(.98)}
+.btn-dark{background:var(--ink);color:#fff}.btn-brand{background:var(--brand);color:#fff;box-shadow:0 8px 18px -8px rgba(249,115,22,.8)}
+.btn-green{background:var(--green);color:#fff}.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink2)}
+.btn-danger{background:var(--redSoft);color:var(--red2);border:1px solid #fecaca}
+.btn-sm{height:36px;padding:0 12px;font-size:13px;border-radius:10px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.inp{width:100%;height:44px;border:1px solid var(--line);border-radius:12px;padding:0 13px;background:#fff;font-size:14px;outline:none}
+textarea.inp{height:auto;padding:10px 13px;resize:vertical;min-height:70px}
+.inp:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(249,115,22,.15)}
+label.l{display:block;font-size:12.5px;font-weight:700;color:var(--ink2);margin-bottom:6px}
+
+/* kpi */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{padding:16px 18px}
+.kpi-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.kpi-h span{font-size:12.5px;font-weight:700;color:var(--muted)}
+.kpi-i{width:36px;height:36px;border-radius:11px;display:grid;place-items:center}
+.kpi b{font-size:24px;font-weight:800;letter-spacing:-.03em;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi p{font-size:12px;color:var(--muted);margin-top:3px}
+.row2{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;margin-top:16px}
+.row2>*,.kpis>*{min-width:0}
+.pad{padding:18px 20px}
+.h3{font-size:14.5px;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.h3>span{display:flex;align-items:center;gap:8px}
+.h3 small{font-size:12px;color:var(--muted);font-weight:600}
+.alert{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:13px;border:1px solid var(--line);margin-bottom:8px;cursor:pointer;transition:background .12s}
+.alert:hover{background:var(--soft)}
+.alert .ai{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;font-size:16px}
+.alert .at{flex:1;min-width:0}.alert .at b{font-size:13.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alert .at small{font-size:12px;color:var(--muted)}
+.bars{display:flex;align-items:flex-end;gap:8px;height:150px;padding-top:8px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;min-width:0}
+.bar i{width:100%;max-width:42px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,#fb923c,#f97316);min-height:3px;position:relative}
+.bar i.z{background:#e5e7eb}
+.bar i:hover::after{content:attr(data-v);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:11px;font-weight:700;padding:4px 7px;border-radius:7px;white-space:nowrap;font-style:normal}
+.bar small{font-size:10.5px;color:var(--faint);font-weight:700}
+.split{display:flex;flex-direction:column;gap:12px}
+.sp-h{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:5px}
+.track{height:9px;border-radius:6px;background:#f1f5f9;overflow:hidden}.track div{height:100%;border-radius:6px}
+
+/* list */
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:24px 0 12px}
+.toolbar h2{font-size:17px;font-weight:800;margin-right:auto}
+.search{position:relative;min-width:240px;flex:0 1 320px}.search .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--faint)}
+.search input{padding-left:40px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px}.chips::-webkit-scrollbar{display:none}
+.chip{height:38px;padding:0 14px;border-radius:11px;background:#fff;border:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2);display:inline-flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip i{font-style:normal;font-size:11px;font-weight:800;background:rgba(100,116,139,.12);padding:2px 7px;border-radius:7px}.chip.on i{background:rgba(255,255,255,.18)}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700;padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:12px 14px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.tbl tbody tr{cursor:pointer}.tbl tbody tr:hover td{background:var(--soft)}
+.tbl .r{text-align:right}
+.cf{display:flex;align-items:center;gap:11px;min-width:0}
+.av{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;flex-shrink:0}
+.cf b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+.cf small{font-size:12px;color:var(--muted)}
+.pill{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.s-faol{background:var(--greenSoft);color:var(--green2)}.s-sinov{background:var(--blueSoft);color:var(--blue2)}
+.s-kutilmoqda{background:var(--amberSoft);color:var(--amber2)}.s-bloklangan{background:#1f2937;color:#fff}.s-tugagan{background:var(--redSoft);color:var(--red2)}
+.plan{font-size:11.5px;font-weight:800;padding:3px 8px;border-radius:7px;background:var(--soft);border:1px solid var(--line)}
+.plan.Biznes{background:var(--brandSoft);border-color:#fed7aa;color:var(--brand2)}.plan.Pro{background:var(--violetSoft);border-color:#ddd6fe;color:var(--violet)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.mlist{display:none}
+.empty{padding:40px 16px;text-align:center;color:var(--faint);font-size:13px}
+
+/* drawer */
+.dr-bg{position:fixed;inset:0;background:rgba(2,6,23,.5);backdrop-filter:blur(4px);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.dr-bg.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--bg);z-index:41;transform:translateX(102%);transition:transform .25s ease;display:flex;flex-direction:column;box-shadow:-30px 0 60px -20px rgba(0,0,0,.4)}
+.drawer.show{transform:none}
+.dr-h{background:var(--side);color:#fff;padding:18px 20px;display:flex;gap:14px;align-items:flex-start}
+.dr-h h3{font-size:19px;font-weight:800;letter-spacing:-.02em}
+.dr-h p{font-size:12.5px;color:#94a3b8;margin-top:3px}
+.xbtn{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.08);display:grid;place-items:center;color:#cbd5e1;margin-left:auto;flex-shrink:0}
+.dr-b{flex:1;overflow:auto;padding:16px 18px 40px;display:flex;flex-direction:column;gap:14px}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.info div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.info small{font-size:11.5px;color:var(--muted);font-weight:600;display:block}
+.info b{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sec{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.sec h4{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2);display:flex;align-items:center;gap:8px}
+.ext{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ext button{border:1.5px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center;font-weight:800;font-size:14px;background:#fff}
+.ext button small{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.ext button.on{border-color:var(--green);background:var(--greenSoft);color:#065f46;box-shadow:0 0 0 3px rgba(16,185,129,.15)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg button{height:40px;border-radius:10px;border:1px solid var(--line);font-weight:700;font-size:13px;background:#fff}
+.seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.rc{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.rc:last-child{border-bottom:0}.rc small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.preview{border-radius:12px;padding:10px 12px;background:var(--blueSoft);color:#1e40af;font-size:13px;font-weight:600;border:1px solid #bfdbfe}
+.callrow{display:flex;gap:8px;flex-wrap:wrap}
+
+/* gate */
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(900px 500px at 85% -10%,rgba(249,115,22,.22),transparent 60%),radial-gradient(700px 400px at -10% 110%,rgba(59,130,246,.14),transparent 60%),#0b1220}
+.g-card{background:#fff;border-radius:24px;padding:26px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px;box-shadow:0 40px 80px -30px rgba(0,0,0,.7)}
+.g-card h2{font-size:21px;font-weight:800;letter-spacing:-.02em}
+.g-card .sub{font-size:13px;color:var(--muted);line-height:1.5;margin-top:3px}
+.err{font-size:13px;color:var(--red2);font-weight:600}.err:empty{display:none}
+
+.toasts{position:fixed;right:18px;top:76px;z-index:80;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--ink);color:#fff;padding:12px 15px;border-radius:13px;font-size:13.5px;font-weight:600;box-shadow:0 14px 30px -10px rgba(0,0,0,.4);border-left:4px solid var(--green);max-width:360px;animation:tin .2s}
+.toast.err{border-left-color:var(--red)}
+@keyframes tin{from{transform:translateY(-6px);opacity:0}}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media (max-width:1020px){.kpis{grid-template-columns:repeat(2,1fr)}.row2{grid-template-columns:1fr}}
+@media (max-width:760px){
+  .top{padding:10px 14px;flex-wrap:wrap}.top .bt small,.upd{display:none}
+  .tabs{order:3;width:100%}.tabs button{flex:1}
+  .wrap{padding:14px 12px 50px}
+  .kpi b{font-size:19px}.kpi{padding:13px}
+  .tblwrap{display:none}.mlist{display:flex;flex-direction:column;gap:8px}
+  .mc{background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px;display:flex;flex-direction:column;gap:9px;box-shadow:var(--sh);text-align:left;width:100%}
+  .mc-b{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted)}
+  .search{flex:1 1 100%;min-width:0}
+  .ext{grid-template-columns:repeat(2,1fr)}
+  .toasts{left:12px;right:12px;top:12px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="dr-bg" id="drbg" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer"></aside>
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* ======================================================================
+   ⚙️ SOZLAMA
+   ====================================================================== */
+const CONFIG={
+  SERVER_URL:'',            // GastroPOS server manzili (…/exec). Bo‘sh bo‘lsa — kirishda so‘raladi
+  PLANS:{Start:149000,Biznes:249000,Pro:399000}   // index.html dagi narxlar bilan bir xil bo‘lsin
+};
+
+/* ================== ICONS ================== */
+const ICONS={
+store:'<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M2 7h20v3a3 3 0 0 1-6 0 3 3 0 0 1-4 0 3 3 0 0 1-4 0 3 3 0 0 1-6 0Z"/>',
+wallet:'<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+trend:'<path d="M22 7 13.5 15.5 8.5 10.5 2 17"/><path d="M16 7h6v6"/>',
+clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+reset:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+unlock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+check:'<path d="M20 6 9 17l-5-5"/>',
+bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+receipt:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+shield:'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
+download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+utensils:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>'
+};
+const ic=(n,s=18)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]||''}</svg>`;
+
+/* ================== HELPERS ================== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=n=>String(Math.round(n||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+const fmt=n=>num(n)+' so‘m';
+const pad=n=>String(n).padStart(2,'0');
+const dOnly=t=>{if(!t)return'—';const d=new Date(t);return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}`};
+const dt=t=>{if(!t)return'—';const d=new Date(t);return `${dOnly(t)} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
+const ago=t=>{if(!t)return'hech qachon';const m=Math.floor((Date.now()-t)/60000);if(m<1)return'hozir';if(m<60)return m+' daq oldin';const h=Math.floor(m/60);if(h<24)return h+' soat oldin';return Math.floor(h/24)+' kun oldin'};
+const daysLeft=c=>c.exp?Math.ceil((c.exp-Date.now())/864e5):null;
+const COLORS=['#f97316','#3b82f6','#10b981','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#6366f1','#ef4444','#0ea5e9'];
+const colorOf=id=>COLORS[(parseInt(String(id).replace(/\D/g,''),10)||0)%COLORS.length];
+const initials=n=>String(n||'?').trim().split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+function toast(m,t='ok'){const e=document.createElement('div');e.className='toast '+(t==='ok'?'':'err');e.textContent=m;$('toasts').appendChild(e);setTimeout(()=>{e.style.transition='.3s';e.style.opacity='0';setTimeout(()=>e.remove(),300)},3200)}
+
+/* holat: tugash sanasi o‘tgan bo‘lsa — “tugagan” */
+function stOf(c){if(c.status==='bloklangan')return'bloklangan';if(c.status==='kutilmoqda')return'kutilmoqda';
+  if((c.status==='faol'||c.status==='sinov')&&c.exp&&c.exp<Date.now())return'tugagan';return c.status||'kutilmoqda'}
+const ST={faol:'Faol',sinov:'Sinov',kutilmoqda:'Kutilmoqda',bloklangan:'Bloklangan',tugagan:'Muddati tugagan'};
+const pill=c=>{const s=stOf(c);return `<span class="pill s-${s}">${ST[s]}</span>`};
+
+/* ================== STATE / API ================== */
+const LSK='gastropos_admin';
+let A={url:'',key:''},D={cafes:[],payments:[]},UI={tab:'home',f:'all',q:'',open:null,ext:30,loading:false,upd:0};
+try{A=Object.assign(A,JSON.parse(localStorage.getItem(LSK))||{})}catch(e){}
+if(CONFIG.SERVER_URL)A.url=CONFIG.SERVER_URL;
+function saveA(){try{localStorage.setItem(LSK,JSON.stringify(A))}catch(e){}}
+async function api(op,data={}){
+  const r=await fetch(A.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action:'admin',op,key:A.key},data))});
+  const j=await r.json();
+  if(j.auth===false){A.key='';saveA();render();throw new Error(j.error||'Parol noto‘g‘ri')}
+  if(!j.ok)throw new Error(j.error||'Server xatosi');
+  return j;
+}
+async function load(silent){
+  if(UI.loading)return;UI.loading=true;if(!silent)renderTop();
+  try{const j=await api('list');D.cafes=j.cafes;D.payments=j.payments;UI.upd=Date.now();render();if(UI.open)openCafe(UI.open,true)}
+  catch(e){if(A.key)toast(e.message||'Serverga ulanib bo‘lmadi','err')}
+  finally{UI.loading=false;renderTop()}
+}
+
+/* ================== LOGIN ================== */
+function renderGate(err=''){
+  $('app').innerHTML=`<div class="gate"><form class="g-card" onsubmit="doLogin(event)" autocomplete="off">
+    <div class="logo" style="width:52px;height:52px;border-radius:16px">${ic('shield',24)}</div>
+    <div><h2>GastroPOS Admin</h2><p class="sub">Kafelarni boshqarish paneli. Faqat siz uchun — parol server.gs dagi <b>ADMIN_KEY</b>.</p></div>
+    ${CONFIG.SERVER_URL?'':`<div><label class="l">Server manzili (…/exec)</label><input class="inp" name="url" required placeholder="https://script.google.com/macros/s/.../exec" value="${esc(A.url)}"></div>`}
+    <div><label class="l">Admin paroli</label><input class="inp" name="key" type="password" required autocomplete="current-password"></div>
+    <div class="err" id="gerr">${esc(err)}</div>
+    <button class="btn btn-brand" style="height:50px" id="gbtn">${ic('lock',17)} Kirish</button>
+  </form></div>`;
+}
+async function doLogin(e){
+  e.preventDefault();const f=Object.fromEntries(new FormData(e.target));
+  if(f.url)A.url=f.url.trim();A.key=f.key;
+  if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(A.url)&&!/^http:\/\/localhost/.test(A.url)){$('gerr').textContent='Manzil https://script.google.com/... bilan boshlanishi kerak';return}
+  $('gbtn').disabled=true;$('gbtn').innerHTML='<span class="spin"></span> Tekshirilmoqda...';
+  try{const j=await api('list');D.cafes=j.cafes;D.payments=j.payments;UI.upd=Date.now();saveA();render();toast('Xush kelibsiz!')}
+  catch(err){A.key='';renderGate(err.message==='Failed to fetch'?'Serverga ulanib bo‘lmadi. Manzilni tekshiring':err.message)}
+}
+function logout(){A.key='';saveA();closeDrawer();render()}
+
+/* ================== RENDER ================== */
+function render(){
+  if(!A.key||!A.url)return renderGate();
+  if(!$('top')){$('app').innerHTML=`<header class="top" id="top"></header><main class="wrap" id="main"></main>`}
+  renderTop();UI.tab==='home'?renderHome():renderPays();
+}
+function renderTop(){
+  const t=$('top');if(!t)return;
+  t.innerHTML=`<div class="logo">${ic('utensils',20)}</div><div class="bt"><b>Gastro<span>POS</span> Admin</b><small>${D.cafes.length} ta kafe</small></div>
+    <div class="tabs"><button class="${UI.tab==='home'?'on':''}" onclick="UI.tab='home';render()">Kafelar</button><button class="${UI.tab==='pays'?'on':''}" onclick="UI.tab='pays';render()">To‘lovlar</button></div>
+    <div class="top-r"><span class="upd">${UI.upd?'Yangilandi: '+ago(UI.upd):''}</span>
+      <button class="tbtn" onclick="load()" title="Yangilash">${UI.loading?'<span class="spin"></span>':ic('reset',16)}</button>
+      <button class="tbtn" onclick="logout()" title="Chiqish">${ic('logout',16)}</button></div>`;
+}
+function stats(){
+  const C=D.cafes,now=new Date(),m0=new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  const by={};C.forEach(c=>{const s=stOf(c);by[s]=(by[s]||0)+1});
+  const paying=C.filter(c=>stOf(c)==='faol');
+  const mrr=paying.reduce((a,c)=>a+(CONFIG.PLANS[c.plan]||0),0);
+  const month=D.payments.filter(p=>p.at>=m0).reduce((a,p)=>a+p.amount,0);
+  const todaySales=C.filter(c=>c.last>Date.now()-864e5).reduce((a,c)=>a+c.today,0);
+  const allSales=C.reduce((a,c)=>a+c.sales,0);
+  return{by,mrr,month,todaySales,allSales,paying:paying.length};
+}
+function alerts(){
+  const L=[];
+  D.cafes.forEach(c=>{const s=stOf(c),d=daysLeft(c);
+    if(s==='kutilmoqda')L.push({c,w:0,i:'🆕',bg:'var(--amberSoft)',t:'Yangi ariza — faollashtirishni kutyapti',s:`${c.owner} · ${c.phone}`});
+    else if(s==='tugagan')L.push({c,w:1,i:'⛔',bg:'var(--redSoft)',t:`Muddati tugagan: ${dOnly(c.exp)}`,s:'Dastur bloklangan — to‘lovni eslating'});
+    else if((s==='faol'||s==='sinov')&&d!==null&&d<=3)L.push({c,w:2,i:'⏳',bg:'var(--amberSoft)',t:`${d<=0?'Bugun':d+' kundan keyin'} tugaydi (${s==='sinov'?'sinov':'obuna'})`,s:`${dOnly(c.exp)} · ${c.phone}`});
+    if((s==='faol'||s==='sinov')&&c.last&&Date.now()-c.last>3*864e5)L.push({c,w:3,i:'📴',bg:'var(--soft)',t:`${Math.floor((Date.now()-c.last)/864e5)} kundan beri aloqa yo‘q`,s:'Dasturdan foydalanmayapti — qo‘ng‘iroq qiling'});
+  });
+  return L.sort((a,b)=>a.w-b.w);
+}
+function filtered(){
+  const q=UI.q.trim().toLowerCase();
+  return D.cafes.filter(c=>(UI.f==='all'||stOf(c)===UI.f)&&(!q||[c.cafe,c.owner,c.phone,c.id,c.city].join(' ').toLowerCase().includes(q)))
+    .sort((a,b)=>{const o={kutilmoqda:0,tugagan:1,sinov:2,faol:3,bloklangan:4};return(o[stOf(a)]-o[stOf(b)])||(b.reg-a.reg)});
+}
+function renderHome(){
+  const s=stats(),al=alerts(),C=D.cafes;
+  const kpi=(t,v,p,i,bg,fg)=>`<div class="card kpi"><div class="kpi-h"><span>${t}</span><div class="kpi-i" style="background:${bg};color:${fg}">${ic(i,18)}</div></div><b class="num">${v}</b><p>${p}</p></div>`;
+  // oxirgi 6 oy tushumi
+  const now=new Date(),months=[];for(let k=5;k>=0;k--){const d=new Date(now.getFullYear(),now.getMonth()-k,1);months.push({y:d.getFullYear(),m:d.getMonth(),v:0})}
+  D.payments.forEach(p=>{const d=new Date(p.at);const x=months.find(o=>o.y===d.getFullYear()&&o.m===d.getMonth());if(x)x.v+=p.amount});
+  const mx=Math.max(1,...months.map(o=>o.v));const MN=['Yan','Fev','Mar','Apr','May','Iyn','Iyl','Avg','Sen','Okt','Noy','Dek'];
+  const plans=['Start','Biznes','Pro'].map(k=>({k,n:C.filter(c=>c.plan===k&&stOf(c)!=='bloklangan').length}));const pn=Math.max(1,plans.reduce((a,p)=>a+p.n,0));
+  const PC={Start:'#64748b',Biznes:'#f97316',Pro:'#7c3aed'};
+  const list=filtered();
+  const F=[['all','Hammasi',C.length],['kutilmoqda','Yangi',s.by.kutilmoqda||0],['sinov','Sinov',s.by.sinov||0],['faol','Faol',s.by.faol||0],['tugagan','Tugagan',s.by.tugagan||0],['bloklangan','Bloklangan',s.by.bloklangan||0]];
+  $('main').innerHTML=`
+  <div class="kpis">
+    ${kpi('Bu oy tushum',fmt(s.month),`${D.payments.filter(p=>p.at>=new Date(now.getFullYear(),now.getMonth(),1).getTime()&&p.amount>0).length} ta to‘lov`,'wallet','var(--greenSoft)','var(--green2)')}
+    ${kpi('Oylik daromad (MRR)',fmt(s.mrr),`${s.paying} ta pullik kafe`,'trend','var(--brandSoft)','var(--brand2)')}
+    ${kpi('Kafelar',C.length+' ta',`${s.by.faol||0} faol · ${s.by.sinov||0} sinovda · ${s.by.kutilmoqda||0} yangi`,'store','var(--blueSoft)','var(--blue2)')}
+    ${kpi('Kafelardagi bugungi savdo',fmt(s.todaySales),`Jami: ${fmt(s.allSales)}`,'receipt','var(--violetSoft)','var(--violet)')}
+  </div>
+  <div class="row2">
+    <div class="card pad"><div class="h3"><span>${ic('bell',17)} Diqqat talab qiladi</span><small>${al.length} ta</small></div>
+      ${al.slice(0,8).map(a=>`<div class="alert" onclick="openCafe('${esc(a.c.id)}')"><span class="ai" style="background:${a.bg}">${a.i}</span><div class="at"><b>${esc(a.c.cafe)} — ${a.t}</b><small>${esc(a.s)}</small></div>${ic('send',15)}</div>`).join('')||'<div class="empty">Hammasi joyida ✓</div>'}
+    </div>
+    <div class="card pad"><div class="h3"><span>Tushum (6 oy)</span><small>To‘lovlar varag‘idan</small></div>
+      <div class="bars">${months.map(o=>`<div class="bar"><i class="${o.v?'':'z'}" style="height:${o.v?Math.max(4,o.v/mx*100):2}%" data-v="${fmt(o.v)}"></i><small>${MN[o.m]}</small></div>`).join('')}</div>
+      <div class="split" style="margin-top:16px">${plans.map(p=>`<div><div class="sp-h"><span>${p.k} <span class="muted">· ${num(CONFIG.PLANS[p.k])}</span></span><b>${p.n} ta</b></div><div class="track"><div style="width:${p.n/pn*100}%;background:${PC[p.k]}"></div></div></div>`).join('')}</div>
+    </div>
+  </div>
+  <div class="toolbar"><h2>Kafelar</h2>
+    <div class="search">${ic('search',17)}<input class="inp" placeholder="Nomi, egasi, telefon, ID..." value="${esc(UI.q)}" oninput="UI.q=this.value;renderList()"></div>
+  </div>
+  <div class="chips">${F.map(([k,t,n])=>`<button class="chip ${UI.f===k?'on':''}" onclick="UI.f='${k}';renderHome()">${t} <i>${n}</i></button>`).join('')}</div>
+  <div id="list"></div>`;
+  renderList();
+}
+function renderList(){
+  const L=filtered();
+  if(!L.length){$('list').innerHTML=`<div class="card empty">${D.cafes.length?'Hech narsa topilmadi':'Hali birorta kafe ro‘yxatdan o‘tmagan. Demo saytni kafe egalariga ko‘rsating!'}</div>`;return}
+  const exp=c=>{const d=daysLeft(c),s=stOf(c);if(!c.exp)return'<span class="muted">—</span>';
+    return `${dOnly(c.exp)}<div style="font-size:11.5px;font-weight:700;color:${s==='tugagan'||d<=3?'var(--red2)':'var(--muted)'}">${s==='tugagan'?Math.abs(d)+' kun o‘tdi':d+' kun qoldi'}</div>`};
+  const lastDot=c=>{const h=c.last?(Date.now()-c.last)/36e5:999;return `<span class="dot" style="background:${h<1?'var(--green)':h<48?'var(--amber)':'#cbd5e1'}"></span>${ago(c.last)}`};
+  $('list').innerHTML=`<div class="card tblwrap" style="overflow:auto"><table class="tbl"><thead><tr><th>Kafe</th><th>Holat</th><th>Tarif</th><th>Tugash</th><th class="r">Bugun</th><th class="r">Jami savdo</th><th>Oxirgi aloqa</th></tr></thead><tbody>
+    ${L.map(c=>`<tr onclick="openCafe('${esc(c.id)}')"><td><div class="cf"><span class="av" style="background:${colorOf(c.id)}">${esc(initials(c.cafe))}</span><div style="min-width:0"><b>${esc(c.cafe)}</b><small>${esc(c.id)} · ${esc(c.owner)} · ${esc(c.city)}</small></div></div></td>
+      <td>${pill(c)}</td><td><span class="plan ${esc(c.plan)}">${esc(c.plan)}</span></td><td class="num">${exp(c)}</td>
+      <td class="r num">${c.today?fmt(c.today):'<span class="muted">—</span>'}</td><td class="r num"><b>${fmt(c.sales)}</b><div class="muted" style="font-size:11.5px">${num(c.checks)} chek</div></td><td style="white-space:nowrap;font-size:12.5px">${lastDot(c)}</td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="mlist">${L.map(c=>`<button class="mc" onclick="openCafe('${esc(c.id)}')"><div class="cf"><span class="av" style="background:${colorOf(c.id)}">${esc(initials(c.cafe))}</span><div style="min-width:0;flex:1"><b>${esc(c.cafe)}</b><small>${esc(c.id)} · ${esc(c.owner)}</small></div>${pill(c)}</div>
+    <div class="mc-b"><span><span class="plan ${esc(c.plan)}">${esc(c.plan)}</span> · ${c.exp?dOnly(c.exp):'—'}</span><span class="num"><b style="color:var(--ink)">${fmt(c.sales)}</b></span></div>
+    <div class="mc-b"><span>${lastDot(c)}</span><span>${num(c.checks)} chek</span></div></button>`).join('')}</div>`;
+}
+function renderPays(){
+  const P=D.payments,now=new Date(),m0=new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  const tot=P.reduce((a,p)=>a+p.amount,0),mon=P.filter(p=>p.at>=m0).reduce((a,p)=>a+p.amount,0);
+  $('main').innerHTML=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card kpi"><div class="kpi-h"><span>Bu oy</span></div><b class="num">${fmt(mon)}</b></div>
+    <div class="card kpi"><div class="kpi-h"><span>Jami (oxirgi ${P.length} ta yozuv)</span></div><b class="num">${fmt(tot)}</b></div>
+    <div class="card kpi"><div class="kpi-h"><span>To‘lovlar soni</span></div><b class="num">${P.filter(p=>p.amount>0).length} ta</b></div></div>
+  <div class="toolbar"><h2>To‘lovlar tarixi</h2><button class="btn btn-ghost btn-sm" onclick="exportPays()">${ic('download',15)} Excel (CSV)</button></div>
+  <div class="card" style="overflow:auto"><table class="tbl"><thead><tr><th>Sana</th><th>Kafe</th><th>Tarif</th><th class="r">Kunlar</th><th class="r">Summa</th><th>Yangi tugash</th><th>Izoh</th></tr></thead><tbody>
+  ${P.map(p=>`<tr onclick="openCafe('${esc(p.cid)}')"><td class="num" style="white-space:nowrap">${dt(p.at)}</td><td><b>${esc(p.cafe)}</b><div class="muted" style="font-size:11.5px">${esc(p.cid)}</div></td><td><span class="plan ${esc(p.plan)}">${esc(p.plan)}</span></td><td class="r num">+${p.days}</td><td class="r num"><b style="color:${p.amount?'var(--green2)':'var(--muted)'}">${p.amount?fmt(p.amount):'bepul'}</b></td><td class="num">${dOnly(p.exp)}</td><td class="muted" style="font-size:12.5px">${esc(p.note)}</td></tr>`).join('')||'<tr><td colspan="7"><div class="empty">Hali to‘lov yo‘q</div></td></tr>'}
+  </tbody></table></div>`;
+}
+function exportPays(){
+  const rows=[['Sana','Kafe ID','Kafe','Tarif','Kunlar','Summa','Yangi tugash','Izoh'],...D.payments.map(p=>[dt(p.at),p.cid,p.cafe,p.plan,p.days,p.amount,dOnly(p.exp),p.note])];
+  const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`tolovlar-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();a.remove();
+}
+
+/* ================== KAFE KARTASI ================== */
+function openCafe(id,keep){
+  const c=D.cafes.find(x=>x.id===id);if(!c)return;
+  if(!keep||UI.open!==id){UI.ext=30;UI.receipts=null}
+  UI.open=id;const s=stOf(c),d=daysLeft(c),dr=$('drawer');
+  const months=UI.ext/30,price=Math.round((CONFIG.PLANS[c.plan]||0)*(UI.ext===365?10:months));
+  const st=dr.querySelector('.dr-b')?dr.querySelector('.dr-b').scrollTop:0;
+  const tel=String(c.phone).replace(/[^\d+]/g,'');
+  dr.innerHTML=`<div class="dr-h"><span class="av" style="background:${colorOf(c.id)};width:46px;height:46px;font-size:15px">${esc(initials(c.cafe))}</span>
+    <div style="min-width:0"><h3>${esc(c.cafe)}</h3><p>${esc(c.id)} · ${esc(c.city)} · ro‘yxatdan o‘tgan ${dOnly(c.reg)}</p><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">${pill(c)}<span class="plan ${esc(c.plan)}" style="background:rgba(255,255,255,.1);border-color:transparent;color:#fff">${esc(c.plan)}</span></div></div>
+    <button class="xbtn" onclick="closeDrawer()">${ic('x',18)}</button></div>
+  <div class="dr-b">
+    <div class="callrow"><a class="btn btn-dark btn-sm" style="text-decoration:none" href="tel:${esc(tel)}">${ic('phone',15)} ${esc(c.phone)}</a>
+      <a class="btn btn-ghost btn-sm" style="text-decoration:none" target="_blank" rel="noopener" href="https://t.me/+${esc(tel.replace('+',''))}">Telegram</a></div>
+    <div class="info">
+      <div><small>Egasi</small><b>${esc(c.owner)}</b></div>
+      <div><small>Tugash sanasi</small><b style="color:${s==='tugagan'||(d!==null&&d<=3)?'var(--red2)':'inherit'}">${c.exp?dOnly(c.exp)+` (${d<0?Math.abs(d)+' kun o‘tdi':d+' kun'})`:'—'}</b></div>
+      <div><small>Oxirgi aloqa</small><b>${ago(c.last)}</b></div>
+      <div><small>Versiya · stollar</small><b>${esc(c.version||'—')} · ${c.tables} stol</b></div>
+      <div><small>Bugungi kassa</small><b class="num">${fmt(c.today)}</b></div>
+      <div><small>Jami savdo</small><b class="num">${fmt(c.sales)} · ${num(c.checks)} chek</b></div>
+      <div><small>Telegram hisobot</small><b>${c.tg?c.tg+' kishi ulangan':'ulanmagan'}</b></div>
+      <div><small>Zaxira (serverda)</small><b>${c.backup?'✓ bor':'hali yo‘q'}</b></div>
+    </div>
+
+    <div class="sec"><h4>${ic('calendar',16)} To‘lov qabul qilish / uzaytirish</h4>
+      <div class="ext">${[[30,'1 oy'],[90,'3 oy'],[180,'6 oy'],[365,'1 yil']].map(([k,t])=>`<button class="${UI.ext===k?'on':''}" onclick="UI.ext=${k};openCafe('${esc(c.id)}',true)">${t}<small>+${k} kun</small></button>`).join('')}</div>
+      <div class="two"><div><label class="l">Olingan summa (so‘m)</label><input class="inp num" id="x-amount" type="number" inputmode="numeric" value="${price}"></div>
+        <div><label class="l">Izoh</label><input class="inp" id="x-note" placeholder="Naqd / Click / chegirma..." maxlength="200"></div></div>
+      <div class="muted" style="font-size:12px">${UI.ext===365?'1 yil = 10 oy narxi (2 oy sovg‘a). ':''}Yangi tugash: <b>${dOnly(Math.max(c.exp||0,Date.now())+UI.ext*864e5)}</b>. Summa 0 bo‘lsa — bepul uzaytirish.</div>
+      <button class="btn btn-green" onclick="doExtend('${esc(c.id)}')">${ic('check',17)} Tasdiqlash: +${UI.ext} kun</button>
+    </div>
+
+    <div class="sec"><h4>${ic('shield',16)} Holat va tarif</h4>
+      <div class="seg" style="grid-template-columns:repeat(4,1fr)">${['sinov','faol','kutilmoqda','bloklangan'].map(k=>`<button class="${c.status===k?'on':''}" onclick="setField('${esc(c.id)}','status','${k}')">${ST[k]}</button>`).join('')}</div>
+      <div class="seg">${['Start','Biznes','Pro'].map(k=>`<button class="${c.plan===k?'on':''}" onclick="setField('${esc(c.id)}','plan','${k}')">${k}<small style="display:block;font-size:10.5px;opacity:.7;font-weight:600">${num(CONFIG.PLANS[k])}</small></button>`).join('')}</div>
+      ${s==='bloklangan'?`<button class="btn btn-ghost" onclick="setField('${esc(c.id)}','status','faol')">${ic('unlock',16)} Blokdan chiqarish</button>`:`<button class="btn btn-danger" onclick="if(confirmBlock())setField('${esc(c.id)}','status','bloklangan')">${ic('lock',16)} Darhol bloklash</button>`}
+      <div class="muted" style="font-size:12px">Kafe dasturi internetga ulangan bo‘lsa, o‘zgarish 1 daqiqa ichida yetib boradi.</div>
+    </div>
+
+    <div class="sec"><h4>${ic('bell',16)} Kafe dasturida xabar (banner)</h4>
+      ${c.msg?`<div class="preview">🔔 ${esc(c.msg)}</div>`:''}
+      <textarea class="inp" id="x-msg" maxlength="300" placeholder="Masalan: Hurmatli mijoz, obunangiz 3 kunda tugaydi...">${esc(c.msg)}</textarea>
+      <div style="display:flex;gap:8px"><button class="btn btn-dark btn-sm" onclick="setField('${esc(c.id)}','msg',$('x-msg').value)">${ic('send',15)} Yuborish</button>${c.msg?`<button class="btn btn-ghost btn-sm" onclick="setField('${esc(c.id)}','msg','')">Olib tashlash</button>`:''}</div>
+    </div>
+
+    <div class="sec"><h4>📝 Ichki izoh (faqat siz ko‘rasiz)</h4>
+      <textarea class="inp" id="x-note2" maxlength="500" placeholder="Kelishuvlar, qo‘ng‘iroqlar...">${esc(c.note)}</textarea>
+      <button class="btn btn-ghost btn-sm" style="align-self:flex-start" onclick="setField('${esc(c.id)}','note',$('x-note2').value)">${ic('check',15)} Saqlash</button>
+    </div>
+
+    <div class="sec"><h4>${ic('receipt',16)} Oxirgi cheklar</h4>
+      <div id="x-rc">${UI.receipts?rcHTML(UI.receipts):`<button class="btn btn-ghost btn-sm" onclick="loadReceipts('${esc(c.id)}')">Cheklarni ko‘rish</button>`}</div>
+    </div>
+
+    <div class="sec"><h4>${ic('wallet',16)} Shu kafe to‘lovlari</h4>
+      ${D.payments.filter(p=>p.cid===c.id).map(p=>`<div class="rc"><div>${dt(p.at)}<small>+${p.days} kun · ${esc(p.note||p.plan)}</small></div><b class="num" style="color:${p.amount?'var(--green2)':'var(--muted)'}">${p.amount?fmt(p.amount):'bepul'}</b></div>`).join('')||'<div class="muted" style="font-size:13px">Hali to‘lov yo‘q</div>'}
+    </div>
+  </div>`;
+  dr.classList.add('show');$('drbg').classList.add('show');
+  if(keep)dr.querySelector('.dr-b').scrollTop=st;
+}
+const confirmBlock=()=>confirm('Kafe dasturi darhol to‘xtaydi va sizning raqamingizni ko‘rsatadi. Bloklaysizmi?');
+function closeDrawer(){$('drawer').classList.remove('show');$('drbg').classList.remove('show');UI.open=null}
+function rcHTML(L){return L.length?L.map(r=>`<div class="rc"><div><b>№${esc(r.no)}</b> · ${esc(r.order)}<small>${dt(r.at)} · ${esc(r.method)}${r.waiter?' · '+esc(r.waiter):''}<br>${esc(r.items)}</small></div><b class="num">${fmt(r.total)}</b></div>`).join(''):'<div class="muted" style="font-size:13px">Hali chek yo‘q</div>'}
+async function loadReceipts(id){$('x-rc').innerHTML='<div class="muted" style="font-size:13px">Yuklanmoqda...</div>';
+  try{const j=await api('receipts',{cid:id});UI.receipts=j.receipts;if(UI.open===id)$('x-rc').innerHTML=rcHTML(j.receipts)}catch(e){toast(e.message,'err');$('x-rc').innerHTML=''}}
+function patch(c){const i=D.cafes.findIndex(x=>x.id===c.id);if(i>=0)D.cafes[i]=c;render();openCafe(c.id,true)}
+async function setField(id,op,value){
+  try{const j=await api(op,{cid:id,value});patch(j.cafe);
+    toast({status:'Holat: '+ST[value],plan:'Tarif: '+value,msg:value?'Xabar kafega yuborildi':'Xabar olib tashlandi',note:'Izoh saqlandi'}[op]||'Saqlandi')}
+  catch(e){toast(e.message,'err')}
+}
+async function doExtend(id){
+  const amount=+$('x-amount').value||0,note=$('x-note').value.trim(),c=D.cafes.find(x=>x.id===id);
+  const btn=event.currentTarget;btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saqlanmoqda...';
+  try{const j=await api('extend',{cid:id,days:UI.ext,amount,note});
+    D.payments.unshift({at:Date.now(),cid:id,cafe:c.cafe,plan:c.plan,days:UI.ext,amount,exp:j.cafe.exp,note});
+    patch(j.cafe);toast(`${c.cafe}: +${UI.ext} kun${amount?' · '+fmt(amount):''}`)}
+  catch(e){toast(e.message,'err');btn.disabled=false}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+
+/* ================== INIT ================== */
+render();
+if(A.key&&A.url)load();
+setInterval(()=>{if(A.key&&document.visibilityState==='visible')load(true)},60000);
+setInterval(()=>{if($('top'))renderTop()},30000);
+</script>
+</body>
+</html>

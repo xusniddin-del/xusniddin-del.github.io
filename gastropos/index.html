@@ -274,7 +274,7 @@ textarea.inp{height:auto;padding:10px 14px;resize:none}
 code{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;background:rgba(15,23,42,.06);padding:2px 6px;border-radius:6px;user-select:all}
 
 /* ===== MODAL ===== */
-.modal{position:fixed;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal{position:fixed;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:95;padding:16px}
 .modal.show{display:flex;animation:fade .15s}
 @keyframes fade{from{opacity:0}}
 .dlg{background:#fff;border-radius:26px;width:100%;max-height:94vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);animation:pop .18s}
@@ -331,7 +331,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;background:rgb
 #print-area{display:none}
 
 /* ===== TOAST ===== */
-.toasts{position:fixed;right:20px;bottom:20px;z-index:80;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toasts{position:fixed;right:20px;bottom:20px;z-index:100;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .toast{background:var(--ink);color:#fff;padding:13px 16px;border-radius:14px;font-size:13.5px;font-weight:600;display:flex;gap:10px;align-items:center;box-shadow:0 14px 30px -10px rgba(0,0,0,.4);border-left:4px solid var(--green);animation:tin .2s;max-width:360px}
 .toast.warn{border-left-color:var(--amber)}.toast.err{border-left-color:var(--red)}
 @keyframes tin{from{transform:translateY(8px);opacity:0}}
@@ -643,7 +643,7 @@ const CONFIG={
   TG_BOT:'',                           // kunlik hisobot boti, masalan 'Restipay_bot' (@ belgisisiz)
   TRIAL_DAYS:14,                       // saytda ko‘rsatiladigan bepul sinov (server.gs dagi bilan bir xil bo‘lsin)
   VERSION:'3.1',
-  BUILD:'2026-11-25.5',               // har yangilanishda o‘zgartiring — kafelardagi dastur o‘zi yangilanadi
+  BUILD:'2026-11-25.6',               // har yangilanishda o‘zgartiring — kafelardagi dastur o‘zi yangilanadi
   DEMO_LIMIT:50,                       // demo rejimda nechta chek yopish mumkin (keyin “to‘liq versiya” so‘raladi)
   // Tariflar: narx, stol va xodim chegarasi, Telegram kunlik hisobot. Server.gs dagi PLAN_TG bilan mos bo‘lsin
   PLANS:[
@@ -983,9 +983,20 @@ function showLock(){
     <div class="lk-top"><div class="logo">${ic('utensils',26)}</div><h2>${esc(S.settings.name)}</h2><p>PIN kodingizni kiriting</p><div class="lk-clock num" id="lk-clock">${hm(new Date())}</div></div>
     <div class="dots" id="dots"></div><div class="lk-msg" id="lk-msg"></div>
     <div class="keys">${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="pinKey('${n}')">${n}</button>`).join('')}<button class="k-fn" onclick="pinKey('clr')">Tozalash</button><button onclick="pinKey('0')">0</button><button class="k-fn" onclick="pinKey('del')">${ic('arrow',22).replace('class="ic"','class="ic" style="transform:rotate(180deg);margin:auto"')}</button></div>
-    <div class="lk-hint">Xodim — 4 xonali shaxsiy kod · Admin — ${maxPin()} xonali PIN${serverMode()?'':'<br>Demo: Jasur 2580 · Dilnoza 3691 · Kassir Malika 4702'}</div>
+    <div class="lk-hint">Xodim — 4 xonali shaxsiy kod · Admin — ${maxPin()} xonali PIN${serverMode()?'':'<br>Demo: Jasur 2580 · Dilnoza 3691 · Kassir Malika 4702'}
+      ${serverMode()?'<br><button style="color:#fb923c;font-weight:700;margin-top:6px;text-decoration:underline" onclick="forgotPin()">PIN kodni unutdingizmi?</button>':''}</div>
   </div>`,'lockscr');
   drawDots();
+}
+function forgotPin(){
+  const tel=CONFIG.DEV_PHONE.replace(/\s/g,'');
+  showModal(`<div class="dlg-h"><div><h3>PIN kodni unutdingizmi?</h3><p>Admin (egasi) PIN kodi</p></div><button class="xbtn" onclick="closeModal()">${ic('x',18)}</button></div>
+  <div style="padding:22px;display:flex;flex-direction:column;gap:14px;text-align:center">
+    <p style="font-size:14px;color:var(--ink2);line-height:1.6">Dasturchiga qo‘ng‘iroq qiling va kafe ID raqamingizni ayting: <b>${esc(SEC.cid||'—')}</b>.<br>U yangi PIN beradi — <b>1 daqiqa ichida</b> shu kompyuterda ishlaydi.</p>
+    <a class="g-phone num" style="color:var(--ink);background:var(--soft);border-color:var(--line);text-decoration:none" href="tel:${esc(tel)}">${esc(CONFIG.DEV_PHONE)}</a>
+    ${CONFIG.DEV_TG?`<a class="btn btn-ghost" style="text-decoration:none" target="_blank" rel="noopener" href="https://t.me/${esc(CONFIG.DEV_TG)}">Telegram: @${esc(CONFIG.DEV_TG)}</a>`:''}
+    <button class="btn btn-brand" onclick="closeModal();syncNow(true)">${ic('reset',17)} Yangi PIN keldimi? Tekshirish</button>
+    <p class="muted" style="font-size:12px">Xodimlar kodini unutsa — admin Xodimlar bo‘limidan yangisini beradi.</p></div>`,440);
 }
 function drawDots(err){const d=$('dots');if(!d)return;const n=Math.max(maxPin(),pinBuf.length);d.className='dots'+(err?' err':'');d.innerHTML=Array.from({length:n},(_,i)=>`<i class="${i<pinBuf.length?'f':''}"></i>`).join('')}
 function pinKey(k){
@@ -1098,8 +1109,12 @@ async function syncNow(manual){
     const reps=(SEC.reports||[]).slice();
     const snap=JSON.stringify(snapshot()),bh=fnv(snap.replace(/"at":\d+,/,''));
     const backup=bh!==SEC.bkHash&&snap.length<48000?snap:undefined;
-    const res=await api('sync',{cid:SEC.cid,receipts:batch,info:{cafe:S.settings.name,staff:S.staff.length,today,count:S.receipts.length},report:dailyReport(),reports:reps,backup});
+    const pinSet=SEC.pinSet,pinAck=SEC.pinAck;
+    const res=await api('sync',{cid:SEC.cid,receipts:batch,info:{cafe:S.settings.name,staff:S.staff.length,today,count:S.receipts.length},report:dailyReport(),reports:reps,backup,pinSet,pinAck});
     if(res.ok){
+      if(pinSet&&SEC.pinSet===pinSet)delete SEC.pinSet;
+      if(res.resetPin&&res.resetPin!==SEC.pinAck)await applyResetPin(res.resetPin);
+      else if(!res.resetPin&&SEC.pinAck)delete SEC.pinAck;
       if(backup){SEC.bkHash=bh;SEC.bkAt=Date.now()}
       const ids=new Set(batch.map(r=>r.id));SEC.outbox=SEC.outbox.filter(r=>!ids.has(r.id));
       SEC.reports=(SEC.reports||[]).slice(reps.length);
@@ -1111,6 +1126,17 @@ async function syncNow(manual){
     }else if(manual)toast(res.error||'Server xatosi','err');
   }catch(e){if(manual)toast('Serverga ulanib bo‘lmadi','err')}
   finally{syncing=false;renderNet();await route0()}
+}
+/* Dasturchi admin paneldan PIN tiklasa — yangi PIN shu kompyuterga o‘zi yetib keladi */
+async function applyResetPin(pin){
+  if(!/^\d{4,6}$/.test(pin))return;
+  let a=adminRec()||S.staff.find(s=>s.role==='admin');
+  if(!a){a={id:'admin',name:'Admin',role:'admin',color:'#f97316',active:true};S.staff.unshift(a)}
+  S.staff.filter(s=>s.role!=='admin'&&s.pin===pin).forEach(s=>s.pin=String(1000+Math.floor(Math.random()*9000)));
+  a.pinHash=await localPinHash(pin);a.pinLen=pin.length;save();
+  SEC.pinAck=pin;saveSec();fails=0;lockUntil=0;
+  toast('🔑 Admin PIN dasturchi tomonidan yangilandi. Kirgandan keyin Sozlamalardan o‘zingizga yangi PIN qo‘ying','warn');
+  if($('gate').classList.contains('lockscr'))showLock();
 }
 async function route0(){const was=GATE.st;GATE=await gateState();renderBanner();if(GATE.st!==was||['pending','expired','blocked','clock'].includes(GATE.st))route()}
 function queueReceipt(r){
@@ -1851,6 +1877,7 @@ async function saveAdminPin(e){
   if(f.pin!==f.pin2)return toast('Yangi PIN’lar mos emas','err');
   if(UI.gpin===4&&S.staff.some(s=>s.pin===f.pin))return toast('Bu kod xodimda bor','err');
   a.pinHash=await localPinHash(f.pin);a.pinLen=f.pin.length;save();closeModal();toast('Admin PIN yangilandi');
+  if(serverMode()){SEC.pinSet=f.pin;saveSec();syncNow()}   // yangi kompyuterda kirish uchun serverdagi PIN ham yangilanadi
 }
 function testPrint(k){
   const items=[{name:'To‘y oshi (palov)',price:38000,qty:2},{name:'Ko‘k choy (choynak)',price:6000,qty:1}];

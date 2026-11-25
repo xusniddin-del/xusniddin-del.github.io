@@ -646,9 +646,9 @@ const CONFIG={
   DEMO_LIMIT:50,                       // demo rejimda nechta chek yopish mumkin (keyin “to‘liq versiya” so‘raladi)
   // Tariflar: narx, stol va xodim chegarasi, Telegram kunlik hisobot. Server.gs dagi PLAN_TG bilan mos bo‘lsin
   PLANS:[
-    {k:'Start', p:149000, d:'15 stol · 5 xodim',            tables:15, staff:5,   tg:false},
-    {k:'Biznes',p:249000, d:'40 stol · Telegram hisobot',   tables:40, staff:999, tg:true},
-    {k:'Pro',   p:399000, d:'80 stol · menyuni kiritib beramiz', tables:80, staff:999, tg:true}
+    {k:'Start', p:149000, d:'10 stol · 5 xodim',            tables:10, staff:5,   tg:false},
+    {k:'Biznes',p:249000, d:'20 stol · Telegram hisobot',   tables:20, staff:999, tg:true},
+    {k:'Pro',   p:399000, d:'30 stol · menyuni kiritib beramiz', tables:30, staff:999, tg:true}
   ],
   PUBLIC_KEY:'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxk+ZSIg3yvKnOOtncN8sT7QhHt5Ul8EuJv0sVbCn4MbAOuShAPUgzYZgievPlU4iVZ/Fx4ch61lV+rRIyY3phTFPyGCThUGH/fStenS7H8SR1DTXUERQwVOsiz0fITrg+HDNrEAeRLmtVuGgbrvgXfPnQiJJURcO5TvJlrTm+pgzdoy32NU+BCo+H7ueQxJxR1Z4Jc7SlpX6pWLzimTp4vIODLk2bW8jBry6hfm2//yb5UJbjYDDG3pIa7e3Ku9nhvpj8txFO5BR1FpbS6tU9O5D4v4AqF6iqpH3dRjUdjfuRqWLY35gXdpxG0DVKF+BQ8RABhpyiJ0l1UxV5XdwEQIDAQAB'              // litsenziya imzosini tekshiruvchi ochiq kalit (server.gs dagi yopiq kalit bilan juft)
 };
@@ -699,7 +699,7 @@ function seed(demo=true,opt={}){
     menu,orders:[],tickets:[],receipts:[],archive:[],log:[],staff:[],shiftStart:Date.now(),
     counters:{ticket:101,receipt:101,soboy:1,dostavka:1,menu:21}};
   if(!demo){
-    const n=Math.max(1,Math.min(80,+opt.tables||8));
+    const n=Math.max(1,Math.min(30,+opt.tables||8));
     for(let i=1;i<=n;i++)base.orders.push(hall(i,4,'Asosiy zal'));
     return base;
   }
@@ -888,8 +888,8 @@ function showOnboard(){
       <div class="two"><div class="field"><label>Egasining ismi</label><input class="inp" name="owner" value="${gv('owner')}" required maxlength="40" placeholder="Ism Familiya"></div>
       <div class="field"><label>Telefon</label><input class="inp num" name="phone" value="${gv('phone')}" required inputmode="tel" placeholder="+998 90 123 45 67"></div></div>
       <div class="two"><div class="field"><label>Shahar / tuman</label><input class="inp" name="city" value="${gv('city')}" required maxlength="40" placeholder="Marg‘ilon"></div>
-      <div class="field"><label>Stollar soni</label><input class="inp num" name="tables" type="number" min="1" max="80" required value="${gv('tables')||10}"></div></div>
-      <div class="g-foot" style="text-align:left;margin-top:-6px">Tarif: Start — 15 stolgacha, Biznes — 40, Pro — 80. Ko‘p stol kiritsangiz, tarif chegarasigacha ochiladi.</div>
+      <div class="field"><label>Stollar soni</label><input class="inp num" name="tables" type="number" min="1" max="30" required value="${gv('tables')||10}"></div></div>
+      <div class="g-foot" style="text-align:left;margin-top:-6px">Tarif: Start — 10 stolgacha, Biznes — 20, Pro — 30. Ko‘p stol kiritsangiz, tarif chegarasigacha ochiladi.</div>
       <div class="field"><label>Tarif</label><div class="plans">${CONFIG.PLANS.map(p=>`<button type="button" class="${UI.gplan===p.k?'on':''}" onclick="UI.gplan='${p.k}';this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this))"><b>${p.k}</b><small>${num(p.p)} so’m/oy</small><span style="display:block;font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.3">${esc(p.d)}</span></button>`).join('')}</div></div>
       `:`<div class="field"><label>Telefon</label><input class="inp num" name="phone" value="${gv('phone')}" required inputmode="tel" placeholder="+998 90 123 45 67"></div>`}
       <div class="field"><label style="display:flex;justify-content:space-between;align-items:center">Admin PIN kodi ${reg?`<span class="seg" style="padding:2px"><button type="button" style="height:28px;padding:0 10px" class="${UI.gpin===4?'on':''}" onclick="keepForm();UI.gpin=4;showOnboard()">4 xona</button><button type="button" style="height:28px;padding:0 10px" class="${UI.gpin===6?'on':''}" onclick="keepForm();UI.gpin=6;showOnboard()">6 xona</button></span>`:''}</label>
@@ -919,7 +919,7 @@ async function doRegister(e){
     const res=await api('register',{cafe:f.cafe.trim(),owner:f.owner.trim(),phone:'+998'+normPhone(f.phone),city:f.city.trim(),tables:+f.tables,plan:UI.gplan,pinHash:await serverPinHash(f.phone,f.pin)});
     if(!res.ok)return gErr(res.error||'Xatolik');
     SEC.cid=res.cid;SEC.lic=res.lic;if(res.serverTime)SEC.maxSeen=res.serverTime;SEC.lastSync=Date.now();saveSec();
-    S=seed(false,{tables:Math.min(+f.tables||8,(CONFIG.PLANS.find(p=>p.k===UI.gplan)||{tables:80}).tables)});
+    S=seed(false,{tables:Math.min(+f.tables||8,(CONFIG.PLANS.find(p=>p.k===UI.gplan)||{tables:30}).tables)});
     Object.assign(S.settings,{name:f.cafe.trim(),address:f.city.trim(),phone:'+998'+normPhone(f.phone)});
     S.staff.push({id:'admin',name:f.owner.trim(),role:'admin',pinHash:await localPinHash(f.pin),pinLen:f.pin.length,color:'#f97316',active:true});
     save();GATE.err=null;toast('Ariza yuborildi!');route();
@@ -1740,7 +1740,7 @@ function renderSettings(){
       <div class="card"><h3>${ic('store',20)} Kafe ma’lumotlari</h3><p class="muted" style="font-size:12.5px;margin-top:-8px">Chekning yuqori qismida chiqadi</p>
         ${inp('name','Kafe nomi')}${inp('address','Manzil')}
         <div class="two">${inp('phone','Telefon','+998 ...')}${inp('inn','STIR (ixtiyoriy)','123456789')}</div>
-        <div class="two">${inp('service','Xizmat haqi, %','10','number')}<div class="field"><label>Zaldagi stollar soni</label><div style="display:flex;gap:8px"><input class="inp num" id="tcount" type="number" min="1" max="80" value="${hall}"><button class="btn btn-ghost" onclick="setTables(+$('tcount').value)">Saqlash</button></div></div></div>
+        <div class="two">${inp('service','Xizmat haqi, %','10','number')}<div class="field"><label>Zaldagi stollar soni</label><div style="display:flex;gap:8px"><input class="inp num" id="tcount" type="number" min="1" max="${planOf().tables}" value="${hall}"><button class="btn btn-ghost" onclick="setTables(+$('tcount').value)">Saqlash</button></div><small class="muted" style="font-size:11.5px;display:block;margin-top:4px">Tarif (${esc(planOf().k)}): ${planOf().tables} tagacha</small></div></div>
         ${inp('footer','Chek oxiridagi yozuv')}
       </div>
       <div class="card"><h3>${ic('shield',20)} Xavfsizlik va xodimlar</h3>
@@ -1793,7 +1793,7 @@ function renderSettings(){
 }
 function setS(k,v){if(k==='service')v=Math.max(0,Math.min(30,v||0));S.settings[k]=v;save();renderGlobal()}
 function setTables(n){
-  n=Math.max(1,Math.min(80,n||1));const hall=S.orders.filter(o=>o.type==='hall');
+  n=Math.max(1,Math.min(30,n||1));const hall=S.orders.filter(o=>o.type==='hall');
   if(n>hall.length&&n>planOf().tables)return upsell(`${planOf().tables} tadan ko‘p stol`);
   if(n>hall.length){let max=Math.max(0,...hall.map(o=>+o.id.slice(1)||0));for(let i=hall.length;i<n;i++){max++;S.orders.splice(hall.length+(i-hall.length),0,{id:'t'+max,name:'Stol '+max,seats:4,zone:'Asosiy zal',type:'hall',items:[],openedAt:null,billRequested:false,serviceOn:true,discount:0,guests:0,note:'',waiterId:null,waiterName:'',dirty:false})}}
   else{const rm=hall.slice(n);if(rm.some(o=>o.items.length))return toast('Oxirgi stollarda ochiq buyurtma bor','err');S.orders=S.orders.filter(o=>!rm.includes(o))}

@@ -1,6 +1,6 @@
 {
-  "name": "GastroPOS — Kafe kassasi",
-  "short_name": "GastroPOS",
+  "name": "Restipay — Kafe boshqaruvi",
+  "short_name": "Restipay",
   "description": "Kafe va oshxona uchun kassa, zal xaritasi, oshxona cheki va xodimlar boshqaruvi",
   "start_url": "./",
   "scope": "./",

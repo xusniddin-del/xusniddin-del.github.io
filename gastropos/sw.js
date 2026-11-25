@@ -1,4 +1,4 @@
-/* GastroPOS — offline ishlash uchun service worker */
+/* Restipay — offline ishlash uchun service worker */
 const CACHE='gastropos-v3.1b';
 const CORE=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).catch(()=>{}));self.skipWaiting()});

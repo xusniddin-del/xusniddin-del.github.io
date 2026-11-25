@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>GastroPOS — Kafe va oshxona kassa tizimi</title>
+<title>Restipay — Kafe va restoran boshqaruv dasturi</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -524,7 +524,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;background:rgb
   <aside class="side">
     <div class="brand">
       <div class="logo" data-i="utensils" data-s="22"></div>
-      <div class="bt"><b>Gastro<span>POS</span></b><small id="brand-sub">Kafe va oshxona kassasi</small></div>
+      <div class="bt"><b>Resti<span>pay</span></b><small id="brand-sub">Kafe va oshxona kassasi</small></div>
     </div>
     <nav class="nav" id="nav">
       <button data-v="tables"><i data-i="grid"></i><span class="lbl">Stollar</span></button>
@@ -640,10 +640,10 @@ const CONFIG={
   DEV_NAME:'Xusniddin Sharofiddinov',
   DEV_PHONE:'+998 90 832 44 36',       // ⚠️ O‘Z RAQAMINGIZNI YOZING — bloklash ekranida chiqadi
   DEV_TG:'mot_075',                    // Telegram username (@ belgisisiz) — bloklash ekranida “Telegramdan yozish” tugmasi
-  TG_BOT:'',                           // kunlik hisobot boti, masalan 'GastroPOSuz_bot' (@ belgisisiz)
+  TG_BOT:'',                           // kunlik hisobot boti, masalan 'Restipay_bot' (@ belgisisiz)
   TRIAL_DAYS:14,                       // saytda ko‘rsatiladigan bepul sinov (server.gs dagi bilan bir xil bo‘lsin)
   VERSION:'3.1',
-  BUILD:'2026-11-25.3',               // har yangilanishda o‘zgartiring — kafelardagi dastur o‘zi yangilanadi
+  BUILD:'2026-11-25.4',               // har yangilanishda o‘zgartiring — kafelardagi dastur o‘zi yangilanadi
   DEMO_LIMIT:50,                       // demo rejimda nechta chek yopish mumkin (keyin “to‘liq versiya” so‘raladi)
   // Tariflar: narx, stol va xodim chegarasi, Telegram kunlik hisobot. Server.gs dagi PLAN_TG bilan mos bo‘lsin
   PLANS:[
@@ -693,7 +693,7 @@ function seed(demo=true,opt={}){
   ].map(([id,name,cat,price,icon])=>({id,name,cat,price,icon,img:null,available:true}));
   const hall=(n,seats,zone,x={})=>Object.assign({id:'t'+n,name:'Stol '+n,seats,zone,type:'hall',items:[],openedAt:null,billRequested:false,serviceOn:true,discount:0,guests:0,note:'',waiterId:null,waiterName:'',dirty:false,dirtyAt:null},x);
   const base={v:3,
-    settings:{name:'GastroPOS Milliy Oshxona',address:'Toshkent sh., Amir Temur ko‘chasi 15',phone:'+998 90 123 45 67',inn:'',
+    settings:{name:'Rayhon Milliy Taomlar',address:'Toshkent sh., Amir Temur ko‘chasi 15',phone:'+998 90 123 45 67',inn:'',
       service:10,paper:80,terminal:TERMINALS[0],cashPrinter:'Xprinter XP-Q200',kitchenPrinter:'Rongta RP326',
       autoKitchen:true,autoReceipt:false,fiscalNote:true,sound:true,footer:'Tashrifingiz uchun rahmat! Yoqimli ishtaha!',
       autoLock:0,waiterPay:false,cleanStep:true},
@@ -870,7 +870,7 @@ function showOnboard(){
   gateHTML(`<div class="gate-in">
     <div class="g-brand">
       <div class="logo" style="width:56px;height:56px;border-radius:17px">${ic('utensils',26)}</div>
-      <h1>Kafengizni <span>GastroPOS</span> bilan boshqaring</h1>
+      <h1>Kafengizni <span>Restipay</span> bilan boshqaring</h1>
       <p>Zal xaritasi, ofitsiantlar, oshxona cheki va hisobotlar — bitta dasturda. Internet uzilsa ham ishlayveradi.</p>
       <div class="g-feat">
         <div><b>${ic('users',17)}</b>Har bir xodimga shaxsiy PIN va kabinet</div>
@@ -935,11 +935,11 @@ async function doLogin(e){
     if(!res.ok)return gErr(res.error||'Telefon yoki PIN noto‘g‘ri');
     SEC.cid=res.cid;SEC.lic=res.lic;if(res.serverTime)SEC.maxSeen=res.serverTime;SEC.lastSync=Date.now();saveSec();
     let bk=null;try{bk=res.backup?JSON.parse(res.backup):null}catch(_){}
-    if(bk&&(!S.staff.some(s=>s.role==='admin'&&s.pinHash)||S.settings.name==='GastroPOS Milliy Oshxona')){
+    if(bk&&(!S.staff.some(s=>s.role==='admin'&&s.pinHash)||isDemoName(S.settings.name))){
       S=applySnapshot(bk);const a=S.staff.find(s=>s.role==='admin');
       if(a){a.pinHash=await localPinHash(f.pin);a.pinLen=f.pin.length}else S.staff.unshift({id:'admin',name:res.owner||'Admin',role:'admin',pinHash:await localPinHash(f.pin),pinLen:f.pin.length,color:'#f97316',active:true});
       save();toast(`Zaxiradan tiklandi: ${S.menu.length} ta taom, ${S.staff.length} ta xodim`);
-    }else if(!S.staff.some(s=>s.role==='admin'&&s.pinHash)||S.settings.name==='GastroPOS Milliy Oshxona'){
+    }else if(!S.staff.some(s=>s.role==='admin'&&s.pinHash)||isDemoName(S.settings.name)){
       S=seed(false,{tables:res.tables||8});
       Object.assign(S.settings,{name:res.cafe||S.settings.name,address:res.city||'',phone:res.phone||''});
       S.staff.push({id:'admin',name:res.owner||'Admin',role:'admin',pinHash:await localPinHash(f.pin),pinLen:f.pin.length,color:'#f97316',active:true});
@@ -1052,6 +1052,7 @@ function renderNet(){
 
 /* ================== ZAXIRA (backup) ================== */
 // Serverga: menyu (rasmsiz), xodimlar, stollar, sozlamalar. Faylga: hammasi (rasmlar va cheklar bilan)
+const isDemoName=n=>['GastroPOS Milliy Oshxona','Rayhon Milliy Taomlar'].includes(n);
 function snapshot(){
   return{v:1,at:Date.now(),settings:S.settings,counters:S.counters,
     menu:S.menu.map(({id,name,cat,price,icon,available})=>({id,name,cat,price,icon,available})),
@@ -1068,17 +1069,17 @@ function applySnapshot(b){
   return base;
 }
 function exportBackup(){
-  const data=JSON.stringify({app:'GastroPOS',ver:CONFIG.VERSION,cid:SEC.cid||'',at:Date.now(),data:S});
+  const data=JSON.stringify({app:'GastroPOS',brand:'Restipay',ver:CONFIG.VERSION,cid:SEC.cid||'',at:Date.now(),data:S});
   try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));
-    a.download=`gastropos-zaxira-${localDate(new Date())}.json`;document.body.appendChild(a);a.click();a.remove();
+    a.download=`restipay-zaxira-${localDate(new Date())}.json`;document.body.appendChild(a);a.click();a.remove();
     S.settings.lastBackup=Date.now();save();toast('Zaxira fayl yuklandi. Uni fleshka yoki Telegramga saqlab qo‘ying');if(UI.view==='settings')renderSettings()}
   catch(e){toast('Yuklab bo‘lmadi','err')}
 }
 function importBackup(input){
   const f=input.files&&input.files[0];input.value='';if(!f)return;
   const rd=new FileReader();
-  rd.onload=()=>{let d;try{d=JSON.parse(rd.result)}catch(e){return toast('Fayl buzilgan yoki GastroPOS zaxirasi emas','err')}
-    if(!d||d.app!=='GastroPOS'||!d.data||d.data.v!==3)return toast('Bu GastroPOS zaxira fayli emas','err');
+  rd.onload=()=>{let d;try{d=JSON.parse(rd.result)}catch(e){return toast('Fayl buzilgan yoki Restipay zaxirasi emas','err')}
+    if(!d||d.app!=='GastroPOS'||!d.data||d.data.v!==3)return toast('Bu Restipay zaxira fayli emas','err');
     confirmBox('Zaxiradan tiklash',`${dt(new Date(d.at))} dagi zaxira tiklanadi: ${d.data.menu.length} ta taom, ${d.data.staff.length} ta xodim, ${d.data.receipts.length} ta chek. Hozirgi ma’lumotlar almashtiriladi. Admin PIN — zaxiradagi PIN bo‘ladi.`,'Tiklash',()=>{
       S=d.data;migrate();save();toast('Ma’lumotlar tiklandi. Admin PIN bilan kiring');lockNow()})};
   rd.readAsText(f);

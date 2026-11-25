@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
 <meta name="robots" content="noindex,nofollow">
-<title>GastroPOS Admin — kafelarni boshqarish</title>
+<title>Restipay Admin — kafelarni boshqarish</title>
 <link rel="icon" href="../gastropos/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -177,7 +177,7 @@ label.l{display:block;font-size:12.5px;font-weight:700;color:var(--ink2);margin-
    ⚙️ SOZLAMA
    ====================================================================== */
 const CONFIG={
-  SERVER_URL:'https://script.google.com/macros/s/AKfycbwZnlkvuG5D26na7hN4JrbK_81eDmTePh1qcQAdVXvtBU443HwT3OqkjfOPvjt8j4r4wQ/exec',            // GastroPOS server manzili (…/exec). Bo‘sh bo‘lsa — kirishda so‘raladi
+  SERVER_URL:'https://script.google.com/macros/s/AKfycbwZnlkvuG5D26na7hN4JrbK_81eDmTePh1qcQAdVXvtBU443HwT3OqkjfOPvjt8j4r4wQ/exec',            // Restipay server manzili (…/exec). Bo‘sh bo‘lsa — kirishda so‘raladi
   PLANS:{Start:149000,Biznes:249000,Pro:399000}   // index.html dagi narxlar bilan bir xil bo‘lsin
 };
 
@@ -250,7 +250,7 @@ async function load(silent){
 function renderGate(err=''){
   $('app').innerHTML=`<div class="gate"><form class="g-card" onsubmit="doLogin(event)" autocomplete="off">
     <div class="logo" style="width:52px;height:52px;border-radius:16px">${ic('shield',24)}</div>
-    <div><h2>GastroPOS Admin</h2><p class="sub">Kafelarni boshqarish paneli. Faqat siz uchun — parol server.gs dagi <b>ADMIN_KEY</b>.</p></div>
+    <div><h2>Restipay Admin</h2><p class="sub">Kafelarni boshqarish paneli. Faqat siz uchun — parol server.gs dagi <b>ADMIN_KEY</b>.</p></div>
     ${CONFIG.SERVER_URL?'':`<div><label class="l">Server manzili (…/exec)</label><input class="inp" name="url" required placeholder="https://script.google.com/macros/s/.../exec" value="${esc(A.url)}"></div>`}
     <div><label class="l">Admin paroli</label><input class="inp" name="key" type="password" required autocomplete="current-password"></div>
     <div class="err" id="gerr">${esc(err)}</div>
@@ -275,7 +275,7 @@ function render(){
 }
 function renderTop(){
   const t=$('top');if(!t)return;
-  t.innerHTML=`<div class="logo">${ic('utensils',20)}</div><div class="bt"><b>Gastro<span>POS</span> Admin</b><small>${D.cafes.length} ta kafe</small></div>
+  t.innerHTML=`<div class="logo">${ic('utensils',20)}</div><div class="bt"><b>Resti<span>pay</span> Admin</b><small>${D.cafes.length} ta kafe</small></div>
     <div class="tabs"><button class="${UI.tab==='home'?'on':''}" onclick="UI.tab='home';render()">Kafelar</button><button class="${UI.tab==='pays'?'on':''}" onclick="UI.tab='pays';render()">To‘lovlar</button></div>
     <div class="top-r"><span class="upd">${UI.upd?'Yangilandi: '+ago(UI.upd):''}</span>
       <button class="tbtn" onclick="load()" title="Yangilash">${UI.loading?'<span class="spin"></span>':ic('reset',16)}</button>

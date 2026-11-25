@@ -643,7 +643,7 @@ const CONFIG={
   TG_BOT:'',                           // kunlik hisobot boti, masalan 'Restipay_bot' (@ belgisisiz)
   TRIAL_DAYS:14,                       // saytda ko‘rsatiladigan bepul sinov (server.gs dagi bilan bir xil bo‘lsin)
   VERSION:'3.1',
-  BUILD:'2026-11-25.4',               // har yangilanishda o‘zgartiring — kafelardagi dastur o‘zi yangilanadi
+  BUILD:'2026-11-25.5',               // har yangilanishda o‘zgartiring — kafelardagi dastur o‘zi yangilanadi
   DEMO_LIMIT:50,                       // demo rejimda nechta chek yopish mumkin (keyin “to‘liq versiya” so‘raladi)
   // Tariflar: narx, stol va xodim chegarasi, Telegram kunlik hisobot. Server.gs dagi PLAN_TG bilan mos bo‘lsin
   PLANS:[
@@ -695,7 +695,7 @@ function seed(demo=true,opt={}){
   const base={v:3,
     settings:{name:'Rayhon Milliy Taomlar',address:'Toshkent sh., Amir Temur ko‘chasi 15',phone:'+998 90 123 45 67',inn:'',
       service:10,paper:80,terminal:TERMINALS[0],cashPrinter:'Xprinter XP-Q200',kitchenPrinter:'Rongta RP326',
-      autoKitchen:true,autoReceipt:false,fiscalNote:true,sound:true,footer:'Tashrifingiz uchun rahmat! Yoqimli ishtaha!',
+      autoKitchen:true,autoReceipt:true,fiscalNote:true,sound:true,footer:'Tashrifingiz uchun rahmat! Yoqimli ishtaha!',
       autoLock:0,waiterPay:false,cleanStep:true},
     menu,orders:[],tickets:[],receipts:[],archive:[],log:[],staff:[],shiftStart:Date.now(),
     counters:{ticket:101,receipt:101,soboy:1,dostavka:1,menu:21}};
@@ -751,6 +751,7 @@ function migrate(){                                       // v3.0 → v3.1: oshx
   if(!st.m31){st.m31=1;st.autoKitchen=true;if(st.fiscalNote===undefined)st.fiscalNote=true;
     S.staff=S.staff.filter(x=>x.role!=='oshpaz');
     S.tickets.forEach(t=>{t.status='sent';t.kind=t.kind||'new'})}
+  if(!st.m32){st.m32=1;st.autoReceipt=true;st.autoKitchen=true}   // v3.2: cheklar avtomatik
 }
 let quotaWarned=false;
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){if(!quotaWarned){quotaWarned=true;toast('Xotira to‘ldi! Ba’zi taom rasmlarini o‘chiring','err')}}}
@@ -1472,11 +1473,30 @@ function zDoc(){
   <div class="b">XODIMLAR</div>${S.staff.filter(x=>x.role==='ofitsiant').map(x=>{const v=ss[x.id];return `<div class="row"><span>${esc(x.name.split(' ')[0])}: ${v.tables} stol, ${v.clean} toz.</span><span>${num(v.sales)}</span></div>`}).join('')}
   <div class="hr"></div><div class="b">TOP TAOMLAR</div>${s.top.slice(0,5).map(d=>`<div class="row"><span>${esc(d.name)}</span><span>${d.qty} ta</span></div>`).join('')}<div class="hr"></div></div>`;
 }
-function printDoc(html){
-  const w=S.settings.paper===80?72:48;
+/* Cheklar navbat bilan chiqadi — ketma-ket bosilsa ham biri ikkinchisini o‘chirib yubormaydi */
+const PQ=[];let pBusy=false;
+function printDoc(html){PQ.push(html);if(!pBusy)nextPrint()}
+function nextPrint(){
+  const html=PQ.shift();if(html===undefined){pBusy=false;return}
+  pBusy=true;const w=S.settings.paper===80?72:48;
   $('page-style').textContent=`@page{margin:0}#print-area{width:${w}mm}`;
   $('print-area').innerHTML=html;
-  setTimeout(()=>{try{window.print()}catch(e){toast('Chop etish oynasi ochilmadi','err')}},50);
+  setTimeout(()=>{try{window.print()}catch(e){toast('Chop etish oynasi ochilmadi','err')}setTimeout(nextPrint,400)},60);
+}
+/* Kassa kompyuteri uchun yorliq: Chrome/Edge'ni --kiosk-printing bilan ochadi — cheklar oynasiz chiqadi */
+function downloadLauncher(){
+  const url=location.href.split('#')[0].split('?')[0];
+  const bat=['@echo off','title Restipay','set "URL='+url+'"','set "PROFILE=%LOCALAPPDATA%\\Restipay"',
+    'set "B=%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe"',
+    'if not exist "%B%" set "B=%ProgramFiles(x86)%\\Google\\Chrome\\Application\\chrome.exe"',
+    'if not exist "%B%" set "B=%LOCALAPPDATA%\\Google\\Chrome\\Application\\chrome.exe"',
+    'if not exist "%B%" set "B=%ProgramFiles(x86)%\\Microsoft\\Edge\\Application\\msedge.exe"',
+    'if not exist "%B%" set "B=%ProgramFiles%\\Microsoft\\Edge\\Application\\msedge.exe"',
+    'if not exist "%B%" (echo Chrome yoki Edge topilmadi. Google Chrome ni o\'rnating.& pause & exit /b)',
+    'start "" "%B%" --kiosk-printing --user-data-dir="%PROFILE%" --app="%URL%"',''].join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([bat],{type:'application/octet-stream'}));
+  a.download='Restipay-kassa.bat';document.body.appendChild(a);a.click();a.remove();
+  toast('Restipay-kassa.bat yuklandi — uni ish stoliga qo‘ying va shu orqali oching');
 }
 
 /* ================== 4. REPORTS ================== */
@@ -1770,10 +1790,11 @@ function renderSettings(){
         <div class="two">${sel('cashPrinter','Kassa printeri',PRINTERS)}${sel('kitchenPrinter','Oshxona printeri',PRINTERS)}</div>
         ${sel('terminal','Kassa monobloki (POS-terminal)',TERMINALS)}
         ${tg('autoKitchen','Oshxona cheki printerdan chiqsin','“Oshxonaga” bosilganda: STOL 8 — 1 x KFS. Bekor qilinsa — BEKOR cheki')}
-        ${tg('autoReceipt','To‘lovdan keyin chekni avtomatik chiqarish','Mijoz cheki to‘lov tasdiqlanganda chiqadi')}
+        ${tg('autoReceipt','To‘landi — chek o‘zi chiqsin','To‘lov tasdiqlanishi bilan mijoz cheki chiqadi')}
         ${tg('fiscalNote','Chekda “fiskal chek emas” yozuvi','Fiskal chekni kafengizning onlayn-kassasi yoki virtual kassasi beradi')}
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="testPrint('r')">${ic('receipt',16)} Sinov cheki</button><button class="btn btn-ghost btn-sm" onclick="testPrint('k')">${ic('chef',16)} Sinov oshxona cheki</button><button class="btn btn-ghost btn-sm" onclick="kitchenHistory()">${ic('printer',16)} Oshxona cheklari</button></div>
-        <div class="tip"><b>Printer qanday ulanadi:</b><br>• <b>1 printer</b> (eng oddiy): kassadagi printerdan ham mijoz cheki, ham oshxona cheki chiqadi — ofitsiant oshxona chekini oshpazga beradi.<br>• <b>2 printer</b> (kassa + oshxona): chop etish oynasida printerni tanlaysiz. Chrome oxirgi tanlangan printerni eslab qoladi.<br>• <b>Oynasiz chop etish:</b> Chrome yorlig‘iga <code>--kiosk-printing</code> qo‘shilsa, chek bir bosishda chiqadi, lekin faqat asosiy (default) printerga.</div>
+        <div class="tip" style="background:var(--greenSoft);border-color:#a7f3d0;color:#065f46"><b>Cheklar oynasiz, darhol chiqishi uchun</b> (kassa kompyuterida bir marta):<br>1) Pastdagi tugma bilan <b>Restipay-kassa.bat</b> ni yuklab oling va ish stoliga qo‘ying.<br>2) Dasturni doim shu fayl orqali oching — “To‘landi” va “Oshxonaga” bosilishi bilan chek <b>asosiy printerdan</b> o‘zi chiqadi.<br><button class="btn btn-green btn-sm" style="margin-top:8px" onclick="downloadLauncher()">${ic('download',15)} Kassa yorlig‘ini yuklab olish</button></div>
+        <div class="tip"><b>Printer:</b> bitta 80 mm printer kassada turadi — mijoz cheki ham, oshxona cheki ham undan chiqadi, ofitsiant oshxona chekini oshpazga beradi.<br>Windows’da chek printerini <b>asosiy printer</b> qilib qo‘ying: Sozlamalar → Bluetooth va qurilmalar → Printerlar.</div>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:18px">

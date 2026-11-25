@@ -643,6 +643,7 @@ const CONFIG={
   TG_BOT:'',                           // kunlik hisobot boti, masalan 'GastroPOSuz_bot' (@ belgisisiz)
   TRIAL_DAYS:14,                       // saytda ko‘rsatiladigan bepul sinov (server.gs dagi bilan bir xil bo‘lsin)
   VERSION:'3.1',
+  BUILD:'2026-11-25.3',               // har yangilanishda o‘zgartiring — kafelardagi dastur o‘zi yangilanadi
   DEMO_LIMIT:50,                       // demo rejimda nechta chek yopish mumkin (keyin “to‘liq versiya” so‘raladi)
   // Tariflar: narx, stol va xodim chegarasi, Telegram kunlik hisobot. Server.gs dagi PLAN_TG bilan mos bo‘lsin
   PLANS:[
@@ -1015,7 +1016,19 @@ function login(u){
   toast(`Xush kelibsiz, ${esc(u.name.split(' ')[0])}!`);
   if(u.role==='admin'&&GATE.st!=='demo'&&Date.now()-(S.settings.lastBackup||S.shiftStart)>7*864e5)setTimeout(()=>toast('Bir haftadan beri zaxira fayl olinmagan: Sozlamalar → Zaxira','warn'),1500);
 }
-function lockNow(){UI.user=null;closeModal(true);toggleSheet(false);route()}
+function lockNow(){UI.user=null;closeModal(true);toggleSheet(false);if(UI.updateReady)return location.reload();route()}
+/* Avto-yangilanish: har 15 daqiqada saytdagi BUILD tekshiriladi. Yangi versiya bo‘lsa —
+   qulf ekranida yoki dastur ishlatilmayotganda o‘zi qayta yuklanadi (ma’lumotlar saqlanib qoladi) */
+async function checkUpdate(){
+  if(!location.protocol.startsWith('http'))return;
+  try{const t=await(await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();
+    const m=t.match(/BUILD:'([^']+)'/);if(!m||m[1]===CONFIG.BUILD)return;
+    UI.updateReady=true;
+    if(!UI.user||$('gate').classList.contains('lockscr')||document.visibilityState==='hidden')location.reload();
+  }catch(e){}
+}
+setTimeout(checkUpdate,15000);setInterval(checkUpdate,15*60000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()});
 let lastAct=Date.now();
 ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>lastAct=Date.now(),true));
 document.addEventListener('keydown',e=>{if($('gate').classList.contains('lockscr')){if(/^\d$/.test(e.key))pinKey(e.key);if(e.key==='Backspace')pinKey('del')}});
